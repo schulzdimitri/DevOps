@@ -2,8 +2,14 @@ pipeline {
     agent any 
 
     options {
-        timestamps() 
-        buildDiscarder(logRotator(numToKeepStr: '10'))
+        timeout(time: 30, unit: 'MINUTES')
+        buildDiscarder(logRotator(numToKeepStr: '5', artifactNumToKeepStr: '5'))
+        timestamps()
+        disableConcurrentBuilds()
+    }
+
+    environment {
+        NOME_PIPELINE = 'S07 — Testes Automatizados PETSTORE'
     }
 
     triggers {
@@ -20,12 +26,12 @@ pipeline {
                     userRemoteConfigs: [[url: 'https://github.com/kafreitas07/Project_01_group_02_S07.git']]
                 ])
             }
-        }''
+        }
 
         stage('Install Dependencies') {
             steps {
                 echo 'Instalando dependências npm...'
-                bat 'npm install'
+                bat 'npm ci'
             }
         }
 
@@ -33,11 +39,6 @@ pipeline {
             steps {
                 echo 'Executando testes Postman com Newman...'
                 bat 'npm test'
-            }
-        }
-
-        stage('Generate Report') {
-            steps {
                 echo 'Gerando relatório de testes...'
                 bat 'npm run report'
             }
@@ -53,10 +54,10 @@ pipeline {
             echo 'O pipeline FALHO! Verifique os logs acima.'
         }
         unstable {
-            echo 'O pipeline está INSTÁVE - alguns testes falharam.'
+            echo 'O pipeline está INSTÁVEL - alguns testes falharam.'
         }
         always {
-            echo "Pipeline : ${env.NOME_PIPELINE ?: 'S07 — Testes Automatizados'}"
+            echo "Pipeline : ${env.NOME_PIPELINE}"
             echo "Build    : #${BUILD_NUMBER}"
             echo "Resultado: ${currentBuild.currentResult}"
             echo "Duração  : ${currentBuild.durationString}"
