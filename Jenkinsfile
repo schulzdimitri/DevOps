@@ -32,16 +32,16 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 echo 'Instalando dependências npm...'
-                sh 'npm install'
+                sh 'npm ci'
             }
         }
 
         stage('Run Postman Tests') {
             steps {
                 echo 'Executando testes Postman com Newman...'
-                bat 'npm test'
+                sh 'npm test'
                 echo 'Gerando relatório de testes...'
-                bat 'npm run report'
+                sh 'npm run report'
             }
         }
     }
