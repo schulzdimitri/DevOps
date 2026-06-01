@@ -11,6 +11,9 @@ pipeline {
 
     environment {
         NOME_PIPELINE = 'S07 — Testes Automatizados PETSTORE'
+        EMAIL_DESTINO = credentials('EMAIL_DESTINO_VAR')
+        EMAIL_REMETENTE = credentials('EMAIL_REMETENTE_VAR')
+        EMAIL_SENHA = credentials('EMAIL_SENHA_VAR')
     }
 
     triggers {
@@ -33,6 +36,7 @@ pipeline {
             steps {
                 echo 'Instalando dependências npm...'
                 sh 'npm ci'
+                sh 'npm install nodemailer' 
             }
         }
 
@@ -40,9 +44,13 @@ pipeline {
             steps {
                 echo 'Executando testes Postman com Newman...'
                 sh 'npm test'
-                
-                echo 'Gerando relatório de testes...'
-                sh 'npm run report'
+            }
+        }
+
+        stage('Notificação de Usuários') {
+            steps {
+                echo 'Enviando e-mail com script Node.js...'
+                sh 'node script-email.js'
             }
         }
     }
@@ -50,10 +58,10 @@ pipeline {
     post {
         success {
             echo 'O pipeline concluido com SUCESSO!'
-            archiveArtifacts artifacts: 'newman/**/*.html', allowEmptyArchive: true
+            archiveArtifacts artifacts: 'newman/**/*.html, package.json, postman/*.json', allowEmptyArchive: true
         }
         failure {
-            echo 'O pipeline FALHO! Verifique os logs acima.'
+            echo 'O pipeline FALHOU! Verifique os logs acima.'
         }
         unstable {
             echo 'O pipeline está INSTÁVEL - alguns testes falharam.'
