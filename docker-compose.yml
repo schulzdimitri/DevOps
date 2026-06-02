@@ -32,5 +32,16 @@ services:
     volumes:
       - ./postman:/etc/newman
 
+  nginx:
+    image: nginx:latest
+    container_name: s07-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - jenkins
+
 volumes:
   jenkins_data:
