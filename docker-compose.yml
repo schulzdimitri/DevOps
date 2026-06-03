@@ -23,6 +23,12 @@ services:
     image: jenkins/inbound-agent:latest
     container_name: s07-agent
     restart: unless-stopped
+    environment:
+      JENKINS_URL: http://jenkins:8080
+      JENKINS_SECRET: f07b8514015a2caea6647b7796b29f965db589a929577cc0f38038ba8ecd7a60
+      JENKINS_AGENT_NAME: s07-agent
+    depends_on:
+      - jenkins
 
   newman:
     image: postman/newman:latest
