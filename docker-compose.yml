@@ -1,6 +1,7 @@
 services:
   jenkins:
     image: kaikfreitas/s07-jenkins:latest
+    platform: linux/amd64
     container_name: s07-jenkins
     restart: unless-stopped
     ports:
@@ -20,12 +21,14 @@ services:
   agent:
     build:
       context: .
-      dockerfile: dockerfile.agent
+      dockerfile: Dockerfile.agent
     container_name: s07-jenkins-agent
+    user: root
     restart: unless-stopped
     environment:
       JENKINS_URL: http://jenkins:8080
-      JENKINS_SECRET: f07b8514015a2caea6647b7796b29f965db589a929577cc0f38038ba8ecd7a60
+      JENKINS_SECRET: ${AGENT_SECRET}
+      JENKINS_AGENT_NAME: s07-jenkins-agent
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
@@ -34,7 +37,7 @@ services:
   newman:
     build:
       context: .
-      dockerfile: dockerfile.newman
+      dockerfile: Dockerfile.newman
     container_name: s07-newman
     restart: unless-stopped
     volumes:
@@ -43,7 +46,7 @@ services:
   nginx:
     build:
       context: .
-      dockerfile: dockerfile.nginx
+      dockerfile: Dockerfile.nginx
     container_name: s07-nginx
     restart: unless-stopped
     ports:

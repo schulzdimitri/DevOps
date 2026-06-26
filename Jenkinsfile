@@ -1,5 +1,5 @@
 pipeline {
-    agent any 
+    agent { label 'agent' }
 
     options {
         timeout(time: 30, unit: 'MINUTES')
@@ -47,7 +47,7 @@ pipeline {
             }
         }
 
-        stage('Notificação de Usuários') {
+        stage('Notification') {
             steps {
                 echo 'Enviando e-mail com script Node.js...'
                 sh 'node script-email.js'
