@@ -36,7 +36,9 @@ pipeline {
             steps {
                 echo 'Instalando dependências npm...'
                 sh 'npm ci'
-                sh 'npm install nodemailer' 
+                sh 'npm install nodemailer'
+                echo 'Empacotando suíte de testes...'
+                sh 'tar -czf pacote-testes.tar.gz postman/Collection_postman.json postman/Environments_postman.json package.json'
             }
         }
 
@@ -86,7 +88,7 @@ pipeline {
             echo 'O pipeline está INSTÁVEL - alguns testes ou a cobertura mínima falharam.'
         }
         always {
-            archiveArtifacts artifacts: 'newman/**/*.html, newman/report.json, package.json, postman/*.json', allowEmptyArchive: true
+            archiveArtifacts artifacts: 'pacote-testes.tar.gz, newman/**/*.html, newman/report.json, package.json, postman/*.json', allowEmptyArchive: true
             echo "Pipeline : ${env.NOME_PIPELINE}"
             echo "Build    : #${BUILD_NUMBER}"
             echo "Resultado: ${currentBuild.currentResult}"
