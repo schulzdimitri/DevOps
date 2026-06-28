@@ -51,6 +51,18 @@ pipeline {
             }
         }
 
+        stage('Test Coverage') {
+            steps {
+                echo 'Calculando cobertura de testes a partir do relatório Newman...'
+                script {
+                    def coverageStatus = sh(script: 'npm run coverage', returnStatus: true)
+                    if (coverageStatus != 0) {
+                        unstable('Cobertura de testes abaixo do limite de 90%.')
+                    }
+                }
+            }
+        }
+
         stage('Notification') {
             steps {
                 echo 'Enviando e-mail...'
@@ -66,15 +78,15 @@ pipeline {
     post {
         success {
             echo 'O pipeline concluido com SUCESSO!'
-            archiveArtifacts artifacts: 'newman/**/*.html, package.json, postman/*.json', allowEmptyArchive: true
         }
         failure {
             echo 'O pipeline FALHOU! Verifique os logs acima.'
         }
         unstable {
-            echo 'O pipeline está INSTÁVEL - alguns testes falharam.'
+            echo 'O pipeline está INSTÁVEL - alguns testes ou a cobertura mínima falharam.'
         }
         always {
+            archiveArtifacts artifacts: 'newman/**/*.html, newman/report.json, package.json, postman/*.json', allowEmptyArchive: true
             echo "Pipeline : ${env.NOME_PIPELINE}"
             echo "Build    : #${BUILD_NUMBER}"
             echo "Resultado: ${currentBuild.currentResult}"
